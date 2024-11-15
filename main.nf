@@ -103,53 +103,6 @@ params.Clone_AIRRseq_Second_CreateGermlines.j_field = ""
 params.Clone_AIRRseq_Second_CreateGermlines.clone_field = ""
 
 
-// part 5
-
-// Process Parameters for TIgGER_bayesian_genotype_Inference:
-params.V_allele_based_genotype.call = "v_call"
-params.V_allele_based_genotype.seq = "sequence_alignment"
-params.V_allele_based_genotype.find_unmutated = "false"
-params.V_allele_based_genotype.single_assignments = "false"
-
-
-// Process Parameters for TIgGER_bayesian_genotype_Inference_d_call:
-params.D_allele_based_genotype.call = "d_call"
-params.D_allele_based_genotype.seq = "sequence_alignment"
-params.D_allele_based_genotype.find_unmutated = "false"
-params.D_allele_based_genotype.single_assignments = "true"
-
-
-// Process Parameters for TIgGER_bayesian_genotype_Inference_j_call:
-params.J_allele_based_genotype.call = "j_call"
-params.J_allele_based_genotype.seq = "sequence_alignment"
-params.J_allele_based_genotype.find_unmutated = "false"
-params.J_allele_based_genotype.single_assignments = "true"
-
-
-// part 6
-
-// Process Parameters for Third_Alignment_IgBlastn:
-params.Third_Alignment_IgBlastn.num_threads = params.nproc
-params.Third_Alignment_IgBlastn.ig_seqtype = "Ig"
-params.Third_Alignment_IgBlastn.outfmt = "MakeDb"
-params.Third_Alignment_IgBlastn.num_alignments_V = "10"
-params.Third_Alignment_IgBlastn.domain_system = "imgt"
-
-params.Third_Alignment_MakeDb.failed = "true"
-params.Third_Alignment_MakeDb.format = "airr"
-params.Third_Alignment_MakeDb.regions = "default"
-params.Third_Alignment_MakeDb.extended = "true"
-params.Third_Alignment_MakeDb.asisid = "false"
-params.Third_Alignment_MakeDb.asiscalls = "false"
-params.Third_Alignment_MakeDb.inferjunction = "false"
-params.Third_Alignment_MakeDb.partial = "false"
-params.Third_Alignment_MakeDb.name_alignment = "Finale"
-
-// part 7
-
-// Process Parameters for ogrdbstats_report:
-params.ogrdbstats_report.chain = "IGHV"
-
 
 if (!params.v_germline){params.v_germline = ""} 
 if (!params.d_germline){params.d_germline = ""} 
