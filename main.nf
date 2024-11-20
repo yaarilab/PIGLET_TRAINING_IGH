@@ -110,106 +110,11 @@ ch_empty_file_1 = file("$baseDir/.emptyfiles/NO_FILE_1", hidden:true)
 ch_empty_file_2 = file("$baseDir/.emptyfiles/NO_FILE_2", hidden:true)
 ch_empty_file_3 = file("$baseDir/.emptyfiles/NO_FILE_3", hidden:true)
 
-Channel.fromPath(params.v_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_2_germlineFastaFile_g_8;g_2_germlineFastaFile_g111_22;g_2_germlineFastaFile_g111_12}
-Channel.fromPath(params.d_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_3_germlineFastaFile_g14_0;g_3_germlineFastaFile_g14_1;g_3_germlineFastaFile_g11_16;g_3_germlineFastaFile_g11_12;g_3_germlineFastaFile_g111_16;g_3_germlineFastaFile_g111_12}
-Channel.fromPath(params.j_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_4_germlineFastaFile_g14_0;g_4_germlineFastaFile_g14_1;g_4_germlineFastaFile_g11_17;g_4_germlineFastaFile_g11_12;g_4_germlineFastaFile_g111_17;g_4_germlineFastaFile_g111_12}
+Channel.fromPath(params.v_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_2_germlineFastaFile_g111_22;g_2_germlineFastaFile_g111_12;g_2_germlineFastaFile_g14_0;g_2_germlineFastaFile_g14_1}
+Channel.fromPath(params.d_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_3_germlineFastaFile_g14_0;g_3_germlineFastaFile_g14_1;g_3_germlineFastaFile_g111_16;g_3_germlineFastaFile_g111_12}
+Channel.fromPath(params.j_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_4_germlineFastaFile_g14_0;g_4_germlineFastaFile_g14_1;g_4_germlineFastaFile_g111_17;g_4_germlineFastaFile_g111_12}
 Channel.fromPath(params.airr_seq, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_96_fastaFile_g111_12;g_96_fastaFile_g111_9}
 Channel.fromPath(params.allele_threshold_table, type: 'any').map{ file -> tuple(file.baseName, file) }.set{g_101_outputFileTSV_g_97}
-
-
-process Second_Alignment_D_MakeBlastDb {
-
-input:
- set val(db_name), file(germlineFile) from g_3_germlineFastaFile_g11_16
-
-output:
- file "${db_name}"  into g11_16_germlineDb0_g11_9
-
-script:
-
-if(germlineFile.getName().endsWith("fasta")){
-	"""
-	sed -e '/^>/! s/[.]//g' ${germlineFile} > tmp_germline.fasta
-	mkdir -m777 ${db_name}
-	makeblastdb -parse_seqids -dbtype nucl -in tmp_germline.fasta -out ${db_name}/${db_name}
-	"""
-}else{
-	"""
-	echo something if off
-	"""
-}
-
-}
-
-
-process Second_Alignment_J_MakeBlastDb {
-
-input:
- set val(db_name), file(germlineFile) from g_4_germlineFastaFile_g11_17
-
-output:
- file "${db_name}"  into g11_17_germlineDb0_g11_9
-
-script:
-
-if(germlineFile.getName().endsWith("fasta")){
-	"""
-	sed -e '/^>/! s/[.]//g' ${germlineFile} > tmp_germline.fasta
-	mkdir -m777 ${db_name}
-	makeblastdb -parse_seqids -dbtype nucl -in tmp_germline.fasta -out ${db_name}/${db_name}
-	"""
-}else{
-	"""
-	echo something if off
-	"""
-}
-
-}
-
-
-process airrseq_to_fasta {
-
-input:
-
-output:
- set val(name), file(outfile)  into g_80_germlineFastaFile0_g11_12, g_80_germlineFastaFile0_g11_9
-
-script:
-
-outfile = name+"_collapsed_seq.fasta"
-
-"""
-#!/usr/bin/env Rscript
-
-data <- data.table::fread("${airrseq_data}", stringsAsFactors = F, data.table = F)
-
-data_columns <- names(data)
-
-# take extra columns after cdr3
-
-idx_cdr <- which(data_columns=="cdr3")+1
-
-add_columns <- data_columns[idx_cdr:length(data_columns)]
-
-unique_information <- unique(c("sequence_id", "duplicate_count", "consensus_count", "c_call", add_columns))
-
-unique_information <- unique_information[unique_information %in% data_columns]
-
-seqs <- data[["sequence"]]
-
-seqs_name <-
-  sapply(1:nrow(data), function(x) {
-    paste0(unique_information,
-           rep('=', length(unique_information)),
-           data[x, unique_information],
-           collapse = '|')
-  })
-seqs_name <- gsub('sequence_id=', '', seqs_name, fixed = T)
-
-tigger::writeFasta(setNames(seqs, seqs_name), "${outfile}")
-
-"""
-}
 
 
 process First_Alignment_D_MakeBlastDb {
@@ -345,7 +250,7 @@ input:
 
 output:
  set val(name_igblast),file("*_db-pass.tsv") optional true  into g111_12_outputFileTSV0_g111_19
- set val("reference_set"), file("${reference_set}") optional true  into g111_12_germlineFastaFile11
+ set val("reference_set"), file("${reference_set}") optional true  into g111_12_germlineFastaFile1_g_97
  set val(name_igblast),file("*_db-fail.tsv") optional true  into g111_12_outputFileTSV22
 
 script:
@@ -409,7 +314,7 @@ input:
  set val(name),file(airrFile) from g111_12_outputFileTSV0_g111_19
 
 output:
- set val(name), file("${outfile}"+"passed.tsv") optional true  into g111_19_outputFileTSV0_g_8
+ set val(name), file("${outfile}"+"passed.tsv") optional true  into g111_19_outputFileTSV0_g14_0, g111_19_outputFileTSV0_g14_9
  set val(name), file("${outfile}"+"failed*") optional true  into g111_19_outputFileTSV11
 
 script:
@@ -655,416 +560,7 @@ if(airrFile.getName().endsWith(".tsv")){
 
 }
 
-if(params.container.startsWith("peresay")){
-	cmd = 'source("/usr/local/bin/functions_tigger.R")'
-}else{
-	cmd = 'library(tigger)'
-}
-process Undocumented_Alleles {
-
-publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*novel-passed.tsv$/) "novel_report/$filename"}
-input:
- set val(name),file(airr_file) from g111_19_outputFileTSV0_g_8
- set val(v_germline_name), file(v_germline_file) from g_2_germlineFastaFile_g_8
-
-output:
- set val(name),file("*novel-passed.tsv") optional true  into g_8_outputFileTSV0_g_97
- set val("v_germline"), file("V_novel_germline.fasta") optional true  into g_8_germlineFastaFile1_g_70
-
-script:
-chain = params.Undocumented_Alleles.chain
-num_threads = params.Undocumented_Alleles.num_threads
-germline_min = params.Undocumented_Alleles.germline_min
-min_seqs = params.Undocumented_Alleles.min_seqs
-auto_mutrange = params.Undocumented_Alleles.auto_mutrange
-mut_range = params.Undocumented_Alleles.mut_range
-pos_range = params.Undocumented_Alleles.pos_range
-y_intercept = params.Undocumented_Alleles.y_intercept
-alpha = params.Undocumented_Alleles.alpha
-j_max = params.Undocumented_Alleles.j_max
-min_frac = params.Undocumented_Alleles.min_frac
-
-
-out_novel_file = airr_file.toString() - ".tsv" + "_novel-passed.tsv"
-
-out_novel_germline = "V_novel_germline"
-
-"""
-#!/usr/bin/env Rscript
-
-${cmd}
-
-# libraries
-suppressMessages(require(dplyr))
-
-# functions
-
-## check for repeated nucliotide in sequece. get the novel allele and the germline sequence.
-Repeated_Read <- function(x, seq) {
-  NT <- as.numeric(gsub('([0-9]+).*', '\\1', x))
-  SNP <- gsub('.*>', '', x)
-  OR_SNP <- gsub('[0-9]+([[:alpha:]]*).*', '\\1', x)
-  seq <- c(substr(seq, (NT), (NT + 3)),
-           substr(seq, (NT - 1), (NT + 2)),
-           substr(seq, (NT - 2), (NT + 1)),
-           substr(seq, (NT - 3), (NT)))
-  PAT <- paste0(c(
-    paste0(c(rep(SNP, 3), OR_SNP), collapse = ""),
-    paste0(c(rep(SNP, 2), OR_SNP, SNP), collapse = ""),
-    paste0(c(SNP, OR_SNP, rep(SNP, 2)), collapse = ""),
-    paste0(c(OR_SNP, rep(SNP, 3)), collapse = "")
-  ), collapse = '|')
-  if (any(grepl(PAT, seq)))
-    return(gsub(SNP, 'X', gsub(OR_SNP, 'z', seq[grepl(PAT, seq)])))
-  else
-    return(NA)
-}
-
-# read data and germline
-data <- data.table::fread('${airr_file}', stringsAsFactors = F, data.table = F)
-vgerm <- tigger::readIgFasta('${v_germline_file}')
-
-# transfer groovy param to rsctipt
-num_threads = as.numeric(${num_threads})
-germline_min = as.numeric(${germline_min})
-min_seqs = as.numeric(${min_seqs})
-y_intercept = as.numeric(${y_intercept})
-alpha = as.numeric(${alpha})
-j_max = as.numeric(${j_max})
-min_frac = as.numeric(${min_frac})
-auto_mutrange = as.logical('${auto_mutrange}')
-mut_range = as.numeric(unlist(strsplit('${mut_range}',":")))
-mut_range = mut_range[1]:mut_range[2]
-pos_range = as.numeric(unlist(strsplit('${pos_range}',":")))
-pos_range = pos_range[1]:pos_range[2]
-
-
-novel =  try(findNovelAlleles(
-data = data,
-germline_db = vgerm,
-v_call = 'v_call',
-j_call = 'j_call' ,
-seq = 'sequence_alignment',
-junction = 'junction',
-junction_length = 'junction_length',
-germline_min = germline_min,
-min_seqs = min_seqs,
-y_intercept = y_intercept,
-alpha = alpha,
-j_max = j_max,
-min_frac = min_frac,
-auto_mutrange = auto_mutrange,
-mut_range = mut_range,
-pos_range = pos_range,
-nproc = num_threads
-))
-	
-  
-# select only the novel alleles
-if (class(novel) != 'try-error') {
-
-	if (nrow(novel) != 0) {
-		novel <- tigger::selectNovel(novel)
-		novel <- novel %>% dplyr::distinct(novel_imgt, .keep_all = TRUE) %>% 
-		dplyr::filter(!is.na(novel_imgt), nt_substitutions!='') %>% 
-		dplyr::mutate(gene = alakazam::getGene(germline_call, strip_d = F)) %>%
-		dplyr::group_by(gene) %>% dplyr::top_n(n = 2, wt = novel_imgt_count)
-	}
-	
-	## remove padded alleles
-	print(novel)
-	
-	if (nrow(novel) != 0) {
-		SNP_XXXX <- unlist(sapply(1:nrow(novel), function(i) {
-		  subs <- strsplit(novel[['nt_substitutions']][i], ',')[[1]]
-		  RR <-
-		    unlist(sapply(subs,
-		           Repeated_Read,
-		           seq = novel[['germline_imgt']][i],
-		           simplify = F))
-		  RR <- RR[!is.na(RR)]
-		  
-		  length(RR) != 0
-		}))
-		
-		novel <- novel[!SNP_XXXX, ]
-		
-		# remove duplicated novel alleles
-		bool <- !duplicated(novel[['polymorphism_call']])
-		novel <- novel[bool, ]
-		
-		# save novel output
-		write.table(
-		    novel,
-		    file = '${out_novel_file}',
-		    row.names = FALSE,
-		    quote = FALSE,
-		    sep = '\t'
-		)
-		
-		# save germline
-		novel_v_germline <- setNames(gsub('-', '.', novel[['novel_imgt']], fixed = T), novel[['polymorphism_call']])
-		tigger::writeFasta(c(vgerm, novel_v_germline), paste0('${out_novel_germline}','.fasta'))
-	}else{
-		## write fake file
-		file.copy(from = '${v_germline_file}', to = paste0('./','${out_novel_germline}','.fasta'))
-		
-		#file.create(paste0('${out_novel_germline}','.txt'))
-		
-	}
-	
-	
-}else{
-	file.copy(from = '${v_germline_file}', to = paste0('./','${out_novel_germline}','.fasta'))
-	#file.create(paste0('${out_novel_germline}','.txt'))
-}
-"""
-
-
-}
-
-g_8_germlineFastaFile1_g_70= g_8_germlineFastaFile1_g_70.ifEmpty([""]) 
-
-
-process change_names_fasta {
-
-input:
- set val(name), file(v_ref) from g_8_germlineFastaFile1_g_70
-
-output:
- set val(name), file("new_V_novel_germline*")  into g_70_germlineFastaFile0_g_94, g_70_germlineFastaFile0_g14_0, g_70_germlineFastaFile0_g14_1, g_70_germlineFastaFile0_g11_22, g_70_germlineFastaFile0_g11_12
- file "changes.csv" optional true  into g_70_outputFileCSV1_g_94
-
-
-script:
-
-readArray_v_ref = v_ref.toString().split(' ')[0]
-
-if(readArray_v_ref.endsWith("fasta")){
-
-"""
-#!/usr/bin/env python3 
-
-import pandas as pd
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
-from Bio import SeqIO
-from hashlib import sha256 
-
-
-def fasta_to_dataframe(file_path):
-    data = {'ID': [], 'Sequence': []}
-    with open(file_path, 'r') as file:
-        for record in SeqIO.parse(file, 'fasta'):
-            data['ID'].append(record.id)
-            data['Sequence'].append(str(record.seq))
-
-        df = pd.DataFrame(data)
-        return df
-
-
-file_path = '${readArray_v_ref}'  # Replace with the actual path
-df = fasta_to_dataframe(file_path)
-
-
-for index, row in df.iterrows():   
-  if len(row['ID']) > 50:
-    print("hoo")
-    print(row['ID'])
-    row['ID'] = row['ID'].split('*')[0] + '*' + row['ID'].split('*')[1].split('_')[0] + '_' + sha256(row['Sequence'].encode('utf-8')).hexdigest()[-4:]
-
-
-def dataframe_to_fasta(df, output_file, description_column='Description', default_description=''):
-    records = []
-
-    for index, row in df.iterrows():
-        sequence_record = SeqRecord(Seq(row['Sequence']), id=row['ID'])
-
-        # Use the description from the DataFrame if available, otherwise use the default
-        description = row.get(description_column, default_description)
-        sequence_record.description = description
-
-        records.append(sequence_record)
-
-    with open(output_file, 'w') as output_handle:
-        SeqIO.write(records, output_handle, 'fasta')
-
-def save_changes_to_csv(old_df, new_df, output_file):
-    changes = []
-    for index, (old_row, new_row) in enumerate(zip(old_df.itertuples(), new_df.itertuples()), 1):
-        if old_row.ID != new_row.ID:
-            changes.append({'Row': index, 'Old_ID': old_row.ID, 'New_ID': new_row.ID})
-    
-    changes_df = pd.DataFrame(changes)
-    if not changes_df.empty:
-        changes_df.to_csv(output_file, index=False)
-        
-output_file_path = 'new_V_novel_germline.fasta'
-
-dataframe_to_fasta(df, output_file_path)
-
-
-file_path = '${readArray_v_ref}'  # Replace with the actual path
-old_df = fasta_to_dataframe(file_path)
-
-output_csv_file = "changes.csv"
-save_changes_to_csv(old_df, df, output_csv_file)
-
-"""
-} else{
-	
-"""
-#!/usr/bin/env python3 
-	
-
-file_path = 'new_V_novel_germline.txt'
-
-with open(file_path, 'w'):
-    pass
-    
-"""    
-}    
-}
-
-
-process Second_Alignment_V_MakeBlastDb {
-
-input:
- set val(db_name), file(germlineFile) from g_70_germlineFastaFile0_g11_22
-
-output:
- file "${db_name}"  into g11_22_germlineDb0_g11_9
-
-script:
-
-if(germlineFile.getName().endsWith("fasta")){
-	"""
-	sed -e '/^>/! s/[.]//g' ${germlineFile} > tmp_germline.fasta
-	mkdir -m777 ${db_name}
-	makeblastdb -parse_seqids -dbtype nucl -in tmp_germline.fasta -out ${db_name}/${db_name}
-	"""
-}else{
-	"""
-	echo something if off
-	"""
-}
-
-}
-
-
-process Second_Alignment_IgBlastn {
-
-input:
- set val(name),file(fastaFile) from g_80_germlineFastaFile0_g11_9
- file db_v from g11_22_germlineDb0_g11_9
- file db_d from g11_16_germlineDb0_g11_9
- file db_j from g11_17_germlineDb0_g11_9
-
-output:
- set val(name), file("${outfile}") optional true  into g11_9_igblastOut0_g11_12
-
-script:
-num_threads = params.Second_Alignment_IgBlastn.num_threads
-ig_seqtype = params.Second_Alignment_IgBlastn.ig_seqtype
-outfmt = params.Second_Alignment_IgBlastn.outfmt
-num_alignments_V = params.Second_Alignment_IgBlastn.num_alignments_V
-domain_system = params.Second_Alignment_IgBlastn.domain_system
-auxiliary_data = params.Second_Alignment_IgBlastn.auxiliary_data
-
-randomString = org.apache.commons.lang.RandomStringUtils.random(9, true, true)
-outname = name + "_" + randomString
-outfile = (outfmt=="MakeDb") ? name+"_"+randomString+".out" : name+"_"+randomString+".tsv"
-outfmt = (outfmt=="MakeDb") ? "'7 std qseq sseq btop'" : "19"
-
-if(db_v.toString()!="" && db_d.toString()!="" && db_j.toString()!=""){
-	"""
-	igblastn -query ${fastaFile} \
-		-germline_db_V ${db_v}/${db_v} \
-		-germline_db_D ${db_d}/${db_d} \
-		-germline_db_J ${db_j}/${db_j} \
-		-num_alignments_V ${num_alignments_V} \
-		-domain_system imgt \
-		-auxiliary_data ${auxiliary_data} \
-		-outfmt ${outfmt} \
-		-num_threads ${num_threads} \
-		-out ${outfile}
-	"""
-}else{
-	"""
-	"""
-}
-
-}
-
-
-process Second_Alignment_MakeDb {
-
-input:
- set val(name),file(fastaFile) from g_80_germlineFastaFile0_g11_12
- set val(name_igblast),file(igblastOut) from g11_9_igblastOut0_g11_12
- set val(name1), file(v_germline_file) from g_70_germlineFastaFile0_g11_12
- set val(name2), file(d_germline_file) from g_3_germlineFastaFile_g11_12
- set val(name3), file(j_germline_file) from g_4_germlineFastaFile_g11_12
-
-output:
- set val(name_igblast),file("*_db-pass.tsv") optional true  into g11_12_outputFileTSV0_g_94, g11_12_outputFileTSV0_g14_0, g11_12_outputFileTSV0_g14_9
- set val("reference_set"), file("${reference_set}") optional true  into g11_12_germlineFastaFile11
- set val(name_igblast),file("*_db-fail.tsv") optional true  into g11_12_outputFileTSV22
-
-script:
-
-failed = params.Second_Alignment_MakeDb.failed
-format = params.Second_Alignment_MakeDb.format
-regions = params.Second_Alignment_MakeDb.regions
-extended = params.Second_Alignment_MakeDb.extended
-asisid = params.Second_Alignment_MakeDb.asisid
-asiscalls = params.Second_Alignment_MakeDb.asiscalls
-inferjunction = params.Second_Alignment_MakeDb.inferjunction
-partial = params.Second_Alignment_MakeDb.partial
-name_alignment = params.Second_Alignment_MakeDb.name_alignment
-
-failed = (failed=="true") ? "--failed" : ""
-format = (format=="changeo") ? "--format changeo" : ""
-extended = (extended=="true") ? "--extended" : ""
-regions = (regions=="rhesus-igl") ? "--regions rhesus-igl" : ""
-asisid = (asisid=="true") ? "--asis-id" : ""
-asiscalls = (asiscalls=="true") ? "--asis-calls" : ""
-inferjunction = (inferjunction=="true") ? "--infer-junction" : ""
-partial = (partial=="true") ? "--partial" : ""
-
-reference_set = "reference_set_makedb_"+name_alignment+".fasta"
-
-outname = name_igblast+'_'+name_alignment
-
-if(igblastOut.getName().endsWith(".out")){
-	"""
-	
-	cat ${v_germline_file} ${d_germline_file} ${j_germline_file} > ${reference_set}
-	
-	MakeDb.py igblast \
-		-s ${fastaFile} \
-		-i ${igblastOut} \
-		-r ${v_germline_file} ${d_germline_file} ${j_germline_file} \
-		--log MD_${name}.log \
-		--outname ${outname}\
-		${extended} \
-		${failed} \
-		${format} \
-		${regions} \
-		${asisid} \
-		${asiscalls} \
-		${inferjunction} \
-		${partial}
-	"""
-}else{
-	"""
-	
-	"""
-}
-
-}
-
-g_70_germlineFastaFile0_g14_0= g_70_germlineFastaFile0_g14_0.ifEmpty([""]) 
+g_2_germlineFastaFile_g14_0= g_2_germlineFastaFile_g14_0.ifEmpty([""]) 
 g_3_germlineFastaFile_g14_0= g_3_germlineFastaFile_g14_0.ifEmpty([""]) 
 g_4_germlineFastaFile_g14_0= g_4_germlineFastaFile_g14_0.ifEmpty([""]) 
 
@@ -1072,8 +568,8 @@ g_4_germlineFastaFile_g14_0= g_4_germlineFastaFile_g14_0.ifEmpty([""])
 process Clone_AIRRseq_First_CreateGermlines {
 
 input:
- set val(name),file(airrFile) from g11_12_outputFileTSV0_g14_0
- set val(name1), file(v_germline_file) from g_70_germlineFastaFile0_g14_0
+ set val(name),file(airrFile) from g111_19_outputFileTSV0_g14_0
+ set val(name1), file(v_germline_file) from g_2_germlineFastaFile_g14_0
  set val(name2), file(d_germline_file) from g_3_germlineFastaFile_g14_0
  set val(name3), file(j_germline_file) from g_4_germlineFastaFile_g14_0
 
@@ -1191,7 +687,7 @@ DefineClones.py -d ${airrFile} \
 
 }
 
-g_70_germlineFastaFile0_g14_1= g_70_germlineFastaFile0_g14_1.ifEmpty([""]) 
+g_2_germlineFastaFile_g14_1= g_2_germlineFastaFile_g14_1.ifEmpty([""]) 
 g_3_germlineFastaFile_g14_1= g_3_germlineFastaFile_g14_1.ifEmpty([""]) 
 g_4_germlineFastaFile_g14_1= g_4_germlineFastaFile_g14_1.ifEmpty([""]) 
 
@@ -1201,7 +697,7 @@ process Clone_AIRRseq_Second_CreateGermlines {
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*_germ-pass.tsv$/) "clones/$filename"}
 input:
  set val(name),file(airrFile) from g14_2_outputFileTSV0_g14_1
- set val(name1), file(v_germline_file) from g_70_germlineFastaFile0_g14_1
+ set val(name1), file(v_germline_file) from g_2_germlineFastaFile_g14_1
  set val(name2), file(d_germline_file) from g_3_germlineFastaFile_g14_1
  set val(name3), file(j_germline_file) from g_4_germlineFastaFile_g14_1
 
@@ -1257,10 +753,10 @@ process Clone_AIRRseq_single_clone_representative {
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*_clone_rep-passed.tsv.*$/) "clones/$filename"}
 input:
  set val(name),file(airrFile) from g14_1_outputFileTSV0_g14_9
- set val(name1),file(source_airrFile) from g11_12_outputFileTSV0_g14_9
+ set val(name1),file(source_airrFile) from g111_19_outputFileTSV0_g14_9
 
 output:
- set val(outname),file("*_clone_rep-passed.tsv*")  into g14_9_outputFileTSV0_g_94
+ set val(outname),file("*_clone_rep-passed.tsv*")  into g14_9_outputFileTSV0_g_97
  file "*.pdf" optional true  into g14_9_outputFilePdf11
  set val(name), file("*txt")  into g14_9_logFile22
  file "*png"  into g14_9_outputFile33
@@ -1402,77 +898,6 @@ cat(lines, sep = "\n", file = file_path, append = TRUE)
 """
 }
 
-g_70_outputFileCSV1_g_94= g_70_outputFileCSV1_g_94.ifEmpty([""]) 
-g14_9_outputFileTSV0_g_94= g14_9_outputFileTSV0_g_94.ifEmpty([""]) 
-
-
-process change_germline_file_and_repertoire_file_names_back {
-
-input:
- file csv from g_70_outputFileCSV1_g_94
- set val(name1), file(germline_file) from g_70_germlineFastaFile0_g_94
- set val(name_igblast),file(rep_file) from g11_12_outputFileTSV0_g_94
- set val(name2),file(clone_rep_file) from g14_9_outputFileTSV0_g_94
-
-output:
- set val("${germline}"),file("${germline}")  into g_94_germlineFastaFile0_g_97
- set val("${rep}"), file("${rep}")  into g_94_outputFileTSV11
- set val("${clone_rep}"), file("${clone_rep}") optional true  into g_94_outputFileTSV2_g_97
-
-
-script:
-
-
-germline = germline_file.toString().split(' ')[0]
-rep = rep_file.toString().split(' ')[0]
-clone_rep = clone_rep_file.toString().split(' ')[0]
-changes_csv = csv.toString().split(' ')[0]
-
-
-"""
-
-#!/usr/bin/env Rscript
-
-
-# Check if changes.csv file exists
-if (file.exists("changes.csv")) {
-
-  # Read changes from CSV
-  changes <- read.csv("changes.csv", header = FALSE, col.names = c("row", "old_id", "new_id"))
-
-  # Process changes and modify TSV files
-  for (change in 1:nrow(changes)) {
-  
-  
-    old_id <- changes[change,"old_id"]
-    new_id <- changes[change,"new_id"]
-    
-    asterisk_pos <- gregexpr("*", old_id, fixed = TRUE)[[1]]
-    old_id <- substring(old_id, asterisk_pos[1] + 1)
-    
-    asterisk_pos <- gregexpr("*", new_id, fixed = TRUE)[[1]]
-    new_id <- substring(new_id, asterisk_pos[1] + 1)
-
-    
-    # Modify genotype file
-    
-    system(paste("sed -i 's/", new_id, "/", old_id, "/g' ${rep}", sep = ""))
-    
-    system(paste("sed -i 's/", new_id, "/", old_id, "/g' ${clone_rep}", sep = ""))
-    
-    system(paste("sed -i 's/", new_id, "/", old_id, "/g' ${germline}", sep = ""))
-
-  }
-
-
-} else {
-  cat("No changes.csv file found.")
-}
-
-"""
-
-}
-
 
 process asc_to_iuis {
 
@@ -1480,10 +905,9 @@ publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /v_germline_iuis_naming.fasta$/) "iuis_germline/$filename"}
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*novel-passed_iuis_naming.tsv$/) "novel_report/$filename"}
 input:
- set val(name),file(airrFile) from g_94_outputFileTSV2_g_97
- set val(name1), file(germline_file) from g_94_germlineFastaFile0_g_97
+ set val(name),file(airrFile) from g14_9_outputFileTSV0_g_97
+ set val(name1), file(germline_file) from g111_12_germlineFastaFile1_g_97
  set val(name2),file(allele_threshold_table_file) from g_101_outputFileTSV_g_97
- set val(name3),file(novel_allele_file) from g_8_outputFileTSV0_g_97.ifEmpty('').view()
 
 output:
  set val("${name}"),file("*rep-passed_iuis_naming.tsv")  into g_97_outputFileTSV00
