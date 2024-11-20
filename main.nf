@@ -25,38 +25,6 @@ params.First_Alignment_MakeDb.name_alignment = "First_Alignment"
 // Process Parameters for First_Alignment_Collapse_AIRRseq:
 params.First_Alignment_Collapse_AIRRseq.name_alignment = "First_Alignment"
 
-// Process Parameters for Undocumented_Alleles:
-params.Undocumented_Alleles.chain = params.chain
-params.Undocumented_Alleles.num_threads = params.nproc
-params.Undocumented_Alleles.germline_min = 200
-params.Undocumented_Alleles.min_seqs = 50
-params.Undocumented_Alleles.auto_mutrange = "true"
-params.Undocumented_Alleles.mut_range = "1:10"
-params.Undocumented_Alleles.pos_range = "1:318"
-params.Undocumented_Alleles.y_intercept = 0.125
-params.Undocumented_Alleles.alpha = 0.05
-params.Undocumented_Alleles.j_max = 0.15
-params.Undocumented_Alleles.min_frac = 0.75
-
-
-// part 3
-
-// Process Parameters for Second_Alignment_IgBlastn:
-params.Second_Alignment_IgBlastn.num_threads = params.nproc
-params.Second_Alignment_IgBlastn.ig_seqtype = "Ig"
-params.Second_Alignment_IgBlastn.outfmt = "MakeDb"
-params.Second_Alignment_IgBlastn.num_alignments_V = "10"
-params.Second_Alignment_IgBlastn.domain_system = "imgt"
-
-params.Second_Alignment_MakeDb.failed = "true"
-params.Second_Alignment_MakeDb.format = "airr"
-params.Second_Alignment_MakeDb.regions = "default"
-params.Second_Alignment_MakeDb.extended = "true"
-params.Second_Alignment_MakeDb.asisid = "false"
-params.Second_Alignment_MakeDb.asiscalls = "false"
-params.Second_Alignment_MakeDb.inferjunction = "false"
-params.Second_Alignment_MakeDb.partial = "false"
-params.Second_Alignment_MakeDb.name_alignment = "Second_Alignment"
 
 // part 4
 
