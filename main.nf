@@ -199,7 +199,8 @@ chain = chains[ndm_chain]
 ndm_file = db_name+".ndm"
 
 """
-make_igblast_ndm ${germlineFile} ${chain} ${ndm_file}
+#make_igblast_ndm ${germlineFile} ${chain} ${ndm_file}
+cp /usr/local/share/igblast/optional_file/human_gl.aux ${ndm_file} 
 """
 
 }
