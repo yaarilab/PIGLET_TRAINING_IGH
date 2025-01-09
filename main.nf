@@ -214,8 +214,7 @@ if(db_v.toString()!="" && db_d.toString()!="" && db_j.toString()!=""){
 		-germline_db_J ${db_j}/${db_j} \
 		-num_alignments_V ${num_alignments_V} \
 		-domain_system imgt \
-		-auxiliary_data /usr/local/share/igblast/optional_file/human_gl.aux \
-		-custom_internal_data ${custom_internal_data} \
+		-auxiliary_data ${custom_internal_data} \
 		-outfmt ${outfmt} \
 		-num_threads ${num_threads} \
 		-out ${outfile}
