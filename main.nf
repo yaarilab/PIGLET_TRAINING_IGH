@@ -769,6 +769,8 @@ CreateGermlines.py \
 process Clone_AIRRseq_single_clone_representative {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*_clone_rep-passed.tsv.*$/) "clones/$filename"}
+publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*.pdf$/) "reports/$filename"}
+publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*png$/) "reports/$filename"}
 input:
  set val(name),file(airrFile) from g14_1_outputFileTSV0_g14_9
  set val(name1),file(source_airrFile) from g111_19_outputFileTSV0_g14_9
