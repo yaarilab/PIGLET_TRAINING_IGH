@@ -78,14 +78,14 @@ ch_empty_file_1 = file("$baseDir/.emptyfiles/NO_FILE_1", hidden:true)
 ch_empty_file_2 = file("$baseDir/.emptyfiles/NO_FILE_2", hidden:true)
 ch_empty_file_3 = file("$baseDir/.emptyfiles/NO_FILE_3", hidden:true)
 
-Channel.fromPath(params.v_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_2_germlineFastaFile_g_115;g_2_germlineFastaFile_g14_0;g_2_germlineFastaFile_g14_1;g_2_germlineFastaFile_g111_22;g_2_germlineFastaFile_g111_12}
+Channel.fromPath(params.v_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_2_germlineFastaFile_g14_0;g_2_germlineFastaFile_g14_1;g_2_germlineFastaFile_g111_22;g_2_germlineFastaFile_g111_12}
 Channel.fromPath(params.d_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_3_germlineFastaFile_g14_0;g_3_germlineFastaFile_g14_1;g_3_germlineFastaFile_g111_16;g_3_germlineFastaFile_g111_12}
 Channel.fromPath(params.j_germline, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_4_germlineFastaFile_g_116;g_4_germlineFastaFile_g14_0;g_4_germlineFastaFile_g14_1;g_4_germlineFastaFile_g111_17;g_4_germlineFastaFile_g111_12}
-Channel.fromPath(params.airr_seq, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_96_fastaFile_g111_9;g_96_fastaFile_g111_12}
+Channel.fromPath(params.airr_seq, type: 'any').map{ file -> tuple(file.baseName, file) }.into{g_96_fastaFile_g111_12;g_96_fastaFile_g111_9}
 Channel.fromPath(params.allele_threshold_table, type: 'any').map{ file -> tuple(file.baseName, file) }.set{g_101_outputFileTSV_g_97}
 
 
-process First_Alignment_D_MakeBlastDb {
+process Alignment_D_MakeBlastDb {
 
 input:
  set val(db_name), file(germlineFile) from g_3_germlineFastaFile_g111_16
@@ -110,7 +110,7 @@ if(germlineFile.getName().endsWith("fasta")){
 }
 
 
-process First_Alignment_J_MakeBlastDb {
+process Alignment_J_MakeBlastDb {
 
 input:
  set val(db_name), file(germlineFile) from g_4_germlineFastaFile_g111_17
@@ -135,7 +135,7 @@ if(germlineFile.getName().endsWith("fasta")){
 }
 
 
-process First_Alignment_V_MakeBlastDb {
+process Alignment_V_MakeBlastDb {
 
 input:
  set val(db_name), file(germlineFile) from g_2_germlineFastaFile_g111_22
@@ -180,51 +180,24 @@ annotate_j ${germlineFile} ${aux_file}
 }
 
 
-process make_igblast_ndm {
-
-input:
- set val(db_name), file(germlineFile) from g_2_germlineFastaFile_g_115
-
-output:
- file ndm_file  into g_115_outputFileTxt0_g111_9
-
-script:
-
-ndm_chain = params.make_igblast_ndm.ndm_chain
-
-chains = [IGH: 'VH', IGK: 'VK', IGL: 'VL', TRA: 'VA', TRB: 'VB', TRD: 'VD', TRG: 'VG']
-
-chain = chains[ndm_chain]
-
-ndm_file = db_name+".ndm"
-
-"""
-#make_igblast_ndm ${germlineFile} ${chain} ${ndm_file}
-cp /usr/local/share/igblast/optional_file/human_gl.aux ${ndm_file} 
-"""
-
-}
-
-
-process First_Alignment_IgBlastn {
+process Alignment_IgBlastn {
 
 input:
  set val(name),file(fastaFile) from g_96_fastaFile_g111_9
  file db_v from g111_22_germlineDb0_g111_9
  file db_d from g111_16_germlineDb0_g111_9
  file db_j from g111_17_germlineDb0_g111_9
- file auxiliary_data from g_116_outputFileTxt0_g111_9
- file custom_internal_data from g_115_outputFileTxt0_g111_9
+ file custom_internal_data from g_116_outputFileTxt0_g111_9
 
 output:
  set val(name), file("${outfile}") optional true  into g111_9_igblastOut0_g111_12
 
 script:
-num_threads = params.First_Alignment_IgBlastn.num_threads
-ig_seqtype = params.First_Alignment_IgBlastn.ig_seqtype
-outfmt = params.First_Alignment_IgBlastn.outfmt
-num_alignments_V = params.First_Alignment_IgBlastn.num_alignments_V
-domain_system = params.First_Alignment_IgBlastn.domain_system
+num_threads = params.Alignment_IgBlastn.num_threads
+ig_seqtype = params.Alignment_IgBlastn.ig_seqtype
+outfmt = params.Alignment_IgBlastn.outfmt
+num_alignments_V = params.Alignment_IgBlastn.num_alignments_V
+domain_system = params.Alignment_IgBlastn.domain_system
 
 randomString = org.apache.commons.lang.RandomStringUtils.random(9, true, true)
 outname = name + "_" + randomString
@@ -241,7 +214,7 @@ if(db_v.toString()!="" && db_d.toString()!="" && db_j.toString()!=""){
 		-germline_db_J ${db_j}/${db_j} \
 		-num_alignments_V ${num_alignments_V} \
 		-domain_system imgt \
-		-auxiliary_data ${auxiliary_data} \
+		-auxiliary_data /usr/local/share/igblast/optional_file/human_gl.aux \
 		-custom_internal_data ${custom_internal_data} \
 		-outfmt ${outfmt} \
 		-num_threads ${num_threads} \
@@ -255,7 +228,7 @@ if(db_v.toString()!="" && db_d.toString()!="" && db_j.toString()!=""){
 }
 
 
-process First_Alignment_MakeDb {
+process Alignment_MakeDb {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*_db-pass.tsv$/) "initial_annotation_logs/$filename"}
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*_db-fail.tsv$/) "initial_alignment/$filename"}
@@ -273,15 +246,15 @@ output:
 
 script:
 
-failed = params.First_Alignment_MakeDb.failed
-format = params.First_Alignment_MakeDb.format
-regions = params.First_Alignment_MakeDb.regions
-extended = params.First_Alignment_MakeDb.extended
-asisid = params.First_Alignment_MakeDb.asisid
-asiscalls = params.First_Alignment_MakeDb.asiscalls
-inferjunction = params.First_Alignment_MakeDb.inferjunction
-partial = params.First_Alignment_MakeDb.partial
-name_alignment = params.First_Alignment_MakeDb.name_alignment
+failed = params.Alignment_MakeDb.failed
+format = params.Alignment_MakeDb.format
+regions = params.Alignment_MakeDb.regions
+extended = params.Alignment_MakeDb.extended
+asisid = params.Alignment_MakeDb.asisid
+asiscalls = params.Alignment_MakeDb.asiscalls
+inferjunction = params.Alignment_MakeDb.inferjunction
+partial = params.Alignment_MakeDb.partial
+name_alignment = params.Alignment_MakeDb.name_alignment
 
 failed = (failed=="true") ? "--failed" : ""
 format = (format=="changeo") ? "--format changeo" : ""
@@ -325,7 +298,7 @@ if(igblastOut.getName().endsWith(".out")){
 }
 
 
-process First_Alignment_Collapse_AIRRseq {
+process Alignment_Collapse_AIRRseq {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /${outfile}+passed.tsv$/) "initial_annotation/$filename"}
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /${outfile}+failed.*$/) "initial_annotation/$filename"}
@@ -337,9 +310,9 @@ output:
  set val(name), file("${outfile}"+"failed*") optional true  into g111_19_outputFileTSV11
 
 script:
-conscount_min = params.First_Alignment_Collapse_AIRRseq.conscount_min
-n_max = params.First_Alignment_Collapse_AIRRseq.n_max
-name_alignment = params.First_Alignment_Collapse_AIRRseq.name_alignment
+conscount_min = params.Alignment_Collapse_AIRRseq.conscount_min
+n_max = params.Alignment_Collapse_AIRRseq.n_max
+name_alignment = params.Alignment_Collapse_AIRRseq.name_alignment
 
 
 outfile = airrFile.toString() - '.tsv' + name_alignment + "_collapsed-"
