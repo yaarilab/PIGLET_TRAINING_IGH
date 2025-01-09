@@ -983,6 +983,20 @@ repertoire[["v_call"]] <- sapply(repertoire[["v_call"]], function(x) {
       paste0(calls, collapse = ",")
     }, USE.NAMES = F)
 
+repertoire[["j_call"]] <- sapply(repertoire[["j_call"]], function(x) {
+      calls <- unlist(strsplit(x, ","))
+      calls <- allele_threshold_table_reference[calls]
+      calls <- calls[!duplicated(calls)]
+      paste0(calls, collapse = ",")
+    }, USE.NAMES = F)
+    
+repertoire[["d_call"]] <- sapply(repertoire[["d_call"]], function(x) {
+      calls <- unlist(strsplit(x, ","))
+      calls <- allele_threshold_table_reference[calls]
+      calls <- calls[!duplicated(calls)]
+      paste0(calls, collapse = ",")
+    }, USE.NAMES = F)
+
 file_out <- tools::file_path_sans_ext("${airrFile}")
 
 fwrite(repertoire, paste0(file_out,"_iuis_naming.tsv"), sep = "\t", quote = F, row.names = F)
