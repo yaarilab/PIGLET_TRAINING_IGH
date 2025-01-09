@@ -977,6 +977,8 @@ germline_db_dup <- germline_db
 names(germline_db_dup) <- sapply(names(germline_db_dup), function(a) allele_threshold_table_reference[a])
 
 repertoire[["v_call"]] <- sapply(repertoire[["v_call"]], function(x) {
+      if(is.na(x) | x=="") return(NA)
+      
       calls <- unlist(strsplit(x, ","))
       calls <- allele_threshold_table_reference[calls]
       calls <- calls[!duplicated(calls)]
@@ -984,6 +986,8 @@ repertoire[["v_call"]] <- sapply(repertoire[["v_call"]], function(x) {
     }, USE.NAMES = F)
 
 repertoire[["j_call"]] <- sapply(repertoire[["j_call"]], function(x) {
+      if(is.na(x) | x=="") return(NA)
+
       calls <- unlist(strsplit(x, ","))
       calls <- allele_threshold_table_reference[calls]
       calls <- calls[!duplicated(calls)]
@@ -991,6 +995,9 @@ repertoire[["j_call"]] <- sapply(repertoire[["j_call"]], function(x) {
     }, USE.NAMES = F)
     
 repertoire[["d_call"]] <- sapply(repertoire[["d_call"]], function(x) {
+
+	  if(is.na(x) | x=="") return(NA)
+	  
       calls <- unlist(strsplit(x, ","))
       calls <- allele_threshold_table_reference[calls]
       calls <- calls[!duplicated(calls)]
