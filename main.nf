@@ -267,7 +267,7 @@ input:
 
 output:
  set val(name_igblast),file("*_db-pass.tsv") optional true  into g111_12_outputFileTSV0_g111_19
- set val("reference_set"), file("${reference_set}") optional true  into g111_12_germlineFastaFile11
+ set val("reference_set"), file("${reference_set}") optional true  into g111_12_germlineFastaFile1_g_97
  set val(name_igblast),file("*_db-fail.tsv") optional true  into g111_12_outputFileTSV22
 
 script:
@@ -924,6 +924,7 @@ publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /v_
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*novel-passed_iuis_naming.tsv$/) "novel_report/$filename"}
 input:
  set val(name),file(airrFile) from g14_9_outputFileTSV0_g_97
+ set val(name1), file(germline_file) from g111_12_germlineFastaFile1_g_97
  set val(name2),file(allele_threshold_table_file) from g_101_outputFileTSV_g_97
 
 output:
