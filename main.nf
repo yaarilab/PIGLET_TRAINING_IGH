@@ -921,7 +921,6 @@ process asc_to_iuis {
 
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*rep-passed_iuis_naming.tsv$/) "pre_genotype/$filename"}
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /v_germline_iuis_naming.fasta$/) "iuis_germline/$filename"}
-publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*novel-passed_iuis_naming.tsv$/) "novel_report/$filename"}
 input:
  set val(name),file(airrFile) from g14_9_outputFileTSV0_g_97
  set val(name1), file(germline_file) from g111_12_germlineFastaFile1_g_97
@@ -930,11 +929,8 @@ input:
 output:
  set val("${name}"),file("*rep-passed_iuis_naming.tsv")  into g_97_outputFileTSV00
  set val("${name1}"),file("v_germline_iuis_naming.fasta")  into g_97_germlineFastaFile11
- set val("${name}"),file("*novel-passed_iuis_naming.tsv") optional true  into g_97_outputFileTSV22
 
 script:
-
-novel_allele = novel_allele_file ?: ""
 
 """
 #!/usr/bin/env Rscript
@@ -991,28 +987,6 @@ file_out <- tools::file_path_sans_ext("${airrFile}")
 
 fwrite(repertoire, paste0(file_out,"_iuis_naming.tsv"), sep = "\t", quote = F, row.names = F)
 writeFasta(germline_db_dup, "v_germline_iuis_naming.fasta")
-
-if(file.exists("${novel_allele}")){
-	novel_df <- fread("${novel_allele}")
-	novel_df[["germline_call"]] <- sapply(novel_df[["germline_call"]], function(x) {
-      calls <- unlist(strsplit(x, ","))
-      calls <- allele_threshold_table_reference[calls]
-      calls <- calls[!duplicated(calls)]
-      paste0(calls, collapse = ",")
-    }, USE.NAMES = F)
-    novel_df[["gene"]] <- alakazam::getGene(novel_df[["germline_call"]], strip_d = FALSE, omit_nl = FALSE)
-    novel_df[["polymorphism_call"]] <- sapply(novel_df[["polymorphism_call"]], function(x) {
-      calls <- unlist(strsplit(x, ","))
-      calls <- allele_threshold_table_reference[calls]
-      calls <- calls[!duplicated(calls)]
-      paste0(calls, collapse = ",")
-    }, USE.NAMES = F)
-    
-    file_out <- tools::file_path_sans_ext("${novel_allele}")
-
-    fwrite(novel_df, paste0(file_out,"_iuis_naming.tsv"), sep = "\t", quote = F, row.names = F)
-
-}
 
 """
 }
