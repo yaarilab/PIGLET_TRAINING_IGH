@@ -305,7 +305,7 @@ input:
  set val(name),file(airrFile) from g111_12_outputFileTSV0_g111_19
 
 output:
- set val(name), file("${outfile}"+"passed.tsv") optional true  into g111_19_outputFileTSV0_g14_0, g111_19_outputFileTSV0_g14_9
+ set val(name), file("${outfile}"+"passed.tsv") optional true  into g111_19_outputFileTSV0_g_119
  set val(name), file("${outfile}"+"failed*") optional true  into g111_19_outputFileTSV11
 
 script:
@@ -557,6 +557,27 @@ if(airrFile.getName().endsWith(".tsv")){
 
 }
 
+
+process re_write {
+
+input:
+ set val(name),file(airrFile) from g111_19_outputFileTSV0_g_119
+
+output:
+ file val(name),file("${outfile}")  into g_119_outputFileTSV0_g14_0, g_119_outputFileTSV0_g14_9
+
+script:
+
+outfile = airrFile.toString() - '.tsv' + "_column-pass.tsv"
+	
+"""
+#!/usr/bin/env Rscript
+library(data.table)
+df <- fread("${airrFile}")
+fwrite(df,"${outfile}", sep = "\t")
+"""
+}
+
 g_2_germlineFastaFile_g14_0= g_2_germlineFastaFile_g14_0.ifEmpty([""]) 
 g_3_germlineFastaFile_g14_0= g_3_germlineFastaFile_g14_0.ifEmpty([""]) 
 g_4_germlineFastaFile_g14_0= g_4_germlineFastaFile_g14_0.ifEmpty([""]) 
@@ -565,7 +586,7 @@ g_4_germlineFastaFile_g14_0= g_4_germlineFastaFile_g14_0.ifEmpty([""])
 process Clone_AIRRseq_First_CreateGermlines {
 
 input:
- set val(name),file(airrFile) from g111_19_outputFileTSV0_g14_0
+ set val(name),file(airrFile) from g_119_outputFileTSV0_g14_0
  set val(name1), file(v_germline_file) from g_2_germlineFastaFile_g14_0
  set val(name2), file(d_germline_file) from g_3_germlineFastaFile_g14_0
  set val(name3), file(j_germline_file) from g_4_germlineFastaFile_g14_0
@@ -752,7 +773,7 @@ publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*png$/) "reports/$filename"}
 input:
  set val(name),file(airrFile) from g14_1_outputFileTSV0_g14_9
- set val(name1),file(source_airrFile) from g111_19_outputFileTSV0_g14_9
+ set val(name1),file(source_airrFile) from g_119_outputFileTSV0_g14_9
 
 output:
  set val(outname),file("*_clone_rep-passed.tsv*")  into g14_9_outputFileTSV0_g_97
