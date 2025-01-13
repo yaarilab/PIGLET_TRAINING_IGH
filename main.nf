@@ -530,7 +530,10 @@ if(airrFile.getName().endsWith(".tsv")){
 	nrow_i = df2[df2.columns[0]].count()    
 	
 	for col, dtype in dtype_default.items():
-    	df2[col] = df2[col].astype(dtype)
+	    if "Int" in dtype:  # For integer columns
+	        df[col] = df[col].fillna(-1).round(0).astype('Int64')  # Replace NaN and round to integers
+	    elif "float" in dtype:  # For float columns
+	        df[col] = df[col].astype('float')
     
 	df2.to_csv('${outfile}'+'passed.tsv', encoding="utf-8", index=False, sep = "\t", float_format="%.6f", na_rep="NA") #, compression='gzip'
 	
