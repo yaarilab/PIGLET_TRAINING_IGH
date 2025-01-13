@@ -299,8 +299,6 @@ if(igblastOut.getName().endsWith(".out")){
 
 process First_Alignment_Collapse_AIRRseq {
 
-publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /${outfile}+passed.tsv$/) "initial_annotation/$filename"}
-publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /${outfile}+failed.*$/) "initial_annotation/$filename"}
 input:
  set val(name),file(airrFile) from g111_12_outputFileTSV0_g111_19
 
@@ -331,7 +329,7 @@ if(airrFile.getName().endsWith(".tsv")){
 	
 	# column types default
 	
-	# dtype_default={'junction_length': 'Int64', 'np1_length': 'Int64', 'np2_length': 'Int64', 'v_sequence_start': 'Int64', 'v_sequence_end': 'Int64', 'v_germline_start': 'Int64', 'v_germline_end': 'Int64', 'd_sequence_start': 'Int64', 'd_sequence_end': 'Int64', 'd_germline_start': 'Int64', 'd_germline_end': 'Int64', 'j_sequence_start': 'Int64', 'j_sequence_end': 'Int64', 'j_germline_start': 'Int64', 'j_germline_end': 'Int64', 'v_score': 'Int64', 'v_identity': 'Int64', 'v_support': 'Int64', 'd_score': 'Int64', 'd_identity': 'Int64', 'd_support': 'Int64', 'j_score': 'Int64', 'j_identity': 'Int64', 'j_support': 'Int64'}
+	dtype_default={'junction_length': 'Int64', 'np1_length': 'Int64', 'np2_length': 'Int64', 'v_sequence_start': 'Int64', 'v_sequence_end': 'Int64', 'v_germline_start': 'Int64', 'v_germline_end': 'Int64', 'd_sequence_start': 'Int64', 'd_sequence_end': 'Int64', 'd_germline_start': 'Int64', 'd_germline_end': 'Int64', 'j_sequence_start': 'Int64', 'j_sequence_end': 'Int64', 'j_germline_start': 'Int64', 'j_germline_end': 'Int64', 'v_score': 'float', 'v_identity': 'float', 'v_support': 'Int64', 'd_score': 'float', 'd_identity': 'float', 'd_support': 'float', 'j_score': 'float', 'j_identity': 'float', 'j_support': 'float'}
 	
 	SPLITSIZE=2
 	
@@ -531,7 +529,10 @@ if(airrFile.getName().endsWith(".tsv")){
 	cons_n = str(nrow_i-df2[df2.columns[0]].count())
 	nrow_i = df2[df2.columns[0]].count()    
 	
-	df2.to_csv('${outfile}'+'passed.tsv', sep = '\t',index=False) #, compression='gzip'
+	for col, dtype in dtype_default.items():
+    	df2[col] = df2[col].astype(dtype)
+    
+	df2.to_csv('${outfile}'+'passed.tsv', encoding="utf-8", index=False, sep = "\t", float_format="%.6f", na_rep="NA") #, compression='gzip'
 	
 	pd.concat([df_cons_low,df_non]).to_csv('${outfile}'+'failed.tsv', sep = '\t',index=False)
 	
