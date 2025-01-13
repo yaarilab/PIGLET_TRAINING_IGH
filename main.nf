@@ -564,7 +564,7 @@ input:
  set val(name),file(airrFile) from g111_19_outputFileTSV0_g_119
 
 output:
- file val(name),file("${outfile}")  into g_119_outputFileTSV0_g14_0, g_119_outputFileTSV0_g14_9
+ set val(name),file("${outfile}")  into g_119_outputFileTSV0_g14_0, g_119_outputFileTSV0_g14_9
 
 script:
 
