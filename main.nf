@@ -768,7 +768,7 @@ CreateGermlines.py \
 
 process Clone_AIRRseq_single_clone_representative {
 
-publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*_clone_rep-passed.tsv.*$/) "clones/$filename"}
+publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*_clone_rep-passed.tsv$/) "clones/$filename"}
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*.pdf$/) "reports/$filename"}
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*png$/) "reports/$filename"}
 input:
@@ -776,7 +776,7 @@ input:
  set val(name1),file(source_airrFile) from g_119_outputFileTSV0_g14_9
 
 output:
- set val(outname),file("*_clone_rep-passed.tsv*")  into g14_9_outputFileTSV0_g_97
+ set val(outname),file("*_clone_rep-passed.tsv")  into g14_9_outputFileTSV0_g_97
  file "*.pdf" optional true  into g14_9_outputFilePdf11
  set val(name), file("*txt")  into g14_9_logFile22
  file "*png"  into g14_9_outputFile33
@@ -921,7 +921,7 @@ cat(lines, sep = "\n", file = file_path, append = TRUE)
 
 process asc_to_iuis {
 
-publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*rep-passed_iuis_naming.tsv$/) "pre_genotype/$filename"}
+publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /.*iuis_naming.tsv$/) "pre_genotype/$filename"}
 publishDir params.outdir, mode: 'copy', saveAs: {filename -> if (filename =~ /v_germline_iuis_naming.fasta$/) "iuis_germline/$filename"}
 input:
  set val(name),file(airrFile) from g14_9_outputFileTSV0_g_97
@@ -929,7 +929,7 @@ input:
  set val(name2),file(allele_threshold_table_file) from g_101_outputFileTSV_g_97
 
 output:
- set val("${name}"),file("*rep-passed_iuis_naming.tsv")  into g_97_outputFileTSV00
+ set val("${name}"),file("*iuis_naming.tsv")  into g_97_outputFileTSV00
  set val("${name1}"),file("v_germline_iuis_naming.fasta")  into g_97_germlineFastaFile11
 
 script:
